@@ -10,4 +10,4 @@
 #include<vector>
 #include<time.h>
 #include "cmath"
-float* kmeansPlus(vector<float> v,int k);
+float* kmeansPlus(std::vector<float> v,int k);

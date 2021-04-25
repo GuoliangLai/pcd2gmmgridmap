@@ -1,21 +1,9 @@
 #include <iostream>
-#include <ros/ros.h>
-// PCL specific includes
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/console/print.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/visualization/cloud_viewer.h>
-#include <pcl/filters/statistical_outlier_removal.h>
-#include <nav_msgs/OccupancyGrid.h>
 #include <cmath>
-#include "point_cloud.h"
-#include "gmm.h"
-#include <pcl/common/common.h>
-#include "opencv2/opencv.hpp"
 #include "kmeans.h"
 #include "sstream"
 #include "creat_Grid.h"
+#include "Grid_yaml.h"
 void showHelp(){
     cerr<<"before using this program,you should choose the mode"<<endl;
     cerr<<"in this program you can choose the parameters: creat;yaml2map;matching"<<endl;
@@ -43,6 +31,7 @@ int main(int argc, char **argv) {
             return EXIT_FAILURE;
             break;
         case 2:
+            yaml2png(argv[1]);
             break;
         case 3:
 
