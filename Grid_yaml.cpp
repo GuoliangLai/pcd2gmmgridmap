@@ -11,23 +11,19 @@ using  namespace  std;
 using namespace cv;
 int yaml2png(const char* path) {
     FileStorage fs(path,FileStorage::READ);
-    Mat saveImage= imread("/home/lai/CLionProjects/untitled1/build/test.png");
-    Mat tmp(151*25,74*25,CV_8UC3);
-    Mat x2(151*25,74*25,CV_8UC3);
-    cout<<saveImage.size()<<endl;
-    cout<<saveImage.dims<<endl;
+    float grid_size_x,grid_size_y;
+    int png_x,png_y;
+    int gridcolumn,gridrow;
+    fs["grid_size_x"]>>grid_size_x;
+    fs["grid_size_y"]>>grid_size_y;
+    fs["column"]>>gridcolumn;
+    fs["row"]>>gridrow;
+    png_x=(int)(50*grid_size_x);
+    png_y=(int)(50*grid_size_y);
+    Mat tmp(gridcolumn*png_x,gridrow*png_y,CV_8UC3);
+    Mat x2(gridcolumn*png_x,gridrow*png_y,CV_8UC3);
     cout<<tmp.size()<<endl;
     cout<<tmp.dims<<endl;
-    cout<<saveImage.type()<<endl;
-    cout<<saveImage.at<Vec3b>(110  ,50)[1]<<endl;
-    for (int i = 0; i < saveImage.cols; ++i) {
-        for (int j = 0; j < saveImage.rows; ++j) {
-            saveImage.at<Vec3b>(j ,i)[0]=255;
-            saveImage.at<Vec3b>(j ,i)[1]=125;
-            saveImage.at<Vec3b>(j ,i)[2]=125;
-        }
-    }
-
 //    waitKey(0);
     if (!fs.isOpened())
     {
@@ -81,12 +77,12 @@ int yaml2png(const char* path) {
         tmpx1= 128+128*tmpx1;
         int G2=(int)tmpx1;
         cout<<column[i]<<"  "<<row[i]<<"x2的b"<<B2 <<"  "<<G2<<endl;
-        for (int j = 0; j < 25; ++j) {
-            for (int k = 0; k < 25; ++k) {
-                tmp.at<Vec3b>(column[i]*25+j ,row[i]*25+k )[0]=B;
-                tmp.at<Vec3b>(column[i]*25 +j,row[i]*25+k)[1]=G;
-                x2.at<Vec3b>(column[i]*25+j ,row[i]*25+k )[0]=B2;
-                x2.at<Vec3b>(column[i]*25 +j,row[i]*25+k)[1]=G2;
+        for (int j = 0; j < png_x; ++j) {
+            for (int k = 0; k < png_y; ++k) {
+                tmp.at<Vec3b>(column[i]*png_x+j ,row[i]*png_x+k )[0]=B;
+                tmp.at<Vec3b>(column[i]*png_x +j,row[i]*png_x+k)[1]=G;
+                x2.at<Vec3b>(column[i]*png_x+j ,row[i]*png_x+k )[0]=B2;
+                x2.at<Vec3b>(column[i]*png_x +j,row[i]*png_x+k)[1]=G2;
             }
         }
 
