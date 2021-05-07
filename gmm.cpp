@@ -14,6 +14,26 @@ double gmm::singlegussian(double u, double sigma,double z)
     fai = tmp / (sqrt(2 * pi) * sigma);
     return fai;
 }
+void gmm::singleGUssianMod()
+{
+    float sum=0,sigmaSum=0;
+    float sigma=0;
+    for (int i = 0; i < p.size(); ++i) {
+        sum+=p[i].get_point()(2);
+    }
+    sum/=p.size();
+    gm->u(0)=sum;
+    gm->u(1)=0.0;
+    gm->alpha(0)=1.0;
+    gm->alpha(1)=0.0;
+    for (int i = 0; i < p.size(); ++i) {
+        sigmaSum+= (p[i].get_point()(2)-sum)*(p[i].get_point()(2)-sum);
+    }
+    sigma=sigmaSum/(p.size()-1);
+    gm->sigma(0)=sigma;
+    gm->sigma(1)=0.0;
+}
+
 //计算r（jk）
 void gmm::em_step(double u_old, double sigma_old,int N)
 {
@@ -22,8 +42,6 @@ void gmm::em_step(double u_old, double sigma_old,int N)
     rjk.resize(p.size(), 2); //resize 2 * 200
     while (--N>=0)
     {
-
-
         for (int j = 0; j < p.size(); j++)
         {
             double rjksum;
@@ -116,6 +134,17 @@ void gmm::em_step(double u_old, double sigma_old,int N)
         //cout << "第" << N << "次迭代均值2-" << gm->u(1) << endl;
 
     }
+
+    if (isnan(gm->u(0)))
+    {
+        for (int i = 0; i < 2; ++i) {
+            gm->u(i)=0.0;
+            gm->sigma(i)=0.0;
+            gm->alpha(i)=0.0;
+
+        }
+    }
+
 
 
 

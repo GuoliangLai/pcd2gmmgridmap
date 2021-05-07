@@ -33,3 +33,4 @@ public:
  * pcd with the size of 2.0*2.0
  */
 int creatGrid(const char* pcdPath,const char* yamlName,float grid_size_x, float grid_size_y);
+//int creatSingleGrid(const char *pcdPath, const char *yamlName, float grid_size_x, float grid_size_y);

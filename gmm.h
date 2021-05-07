@@ -20,6 +20,7 @@ public:
     double singlegussian(double u, double sigma,double z);
     void em_step(double u_old, double sigma_old,int N);
     void input_point(std::vector<piont_cloud> m_p);
+    void singleGUssianMod();
     gmm();
     ~gmm();
 

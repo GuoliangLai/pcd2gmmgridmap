@@ -46,7 +46,9 @@ inline float abs(float &a) {
  * pcd with the size of 2.0*2.0
  */
 int creatGrid(const char *pcdPath, const char *yamlName, float grid_size_x, float grid_size_y) {
-    FileStorage fs(yamlName, FileStorage::WRITE);
+    string yamlPath(yamlName);
+    yamlPath=yamlPath+"gmm.yaml";
+    FileStorage fs(yamlPath, FileStorage::WRITE);
     cout << "now loading the pcd files please wait..." << endl;
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_in(new pcl::PointCloud<pcl::PointXYZ>);
     if (pcl::io::loadPCDFile<pcl::PointXYZ>(
@@ -134,6 +136,21 @@ int creatGrid(const char *pcdPath, const char *yamlName, float grid_size_x, floa
                 }
 
                 grid[a][b].GuassianMod.em_step(0.2, 0.2, 6);
+                //自动选择模型核数，根据均值之差或者权重大小来判断
+                if( (abs(grid[a][b].GuassianMod.gm->u(0)-grid[a][b].GuassianMod.gm->u(1))<=0.5))
+                {
+                    cout<<a<<" "<<b<<"chazhi : "<<abs(grid[a][b].GuassianMod.gm->u(0)-grid[a][b].GuassianMod.gm->u(1))<<endl;
+                    grid[a][b].GuassianMod.singleGUssianMod();
+                }
+                if (!grid[a][b].GuassianMod.gm->u(1))
+                {
+                    if ((grid[a][b].GuassianMod.gm->alpha(0)/grid[a][b].GuassianMod.gm->alpha(1))>10||
+                        (grid[a][b].GuassianMod.gm->alpha(1)/grid[a][b].GuassianMod.gm->alpha(0))>10
+                    )
+                    {
+                        grid[a][b].GuassianMod.singleGUssianMod();
+                    }
+                }
                 fs << "gmmModeU" << "[:";
                 for (int i = 0; i < 2; i++) {
                     if (isnan(grid[a][b].GuassianMod.gm->u(i)))
