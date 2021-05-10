@@ -1,4 +1,4 @@
-//
+//has write
 // Created by lai on 2021/4/24.
 //
 
@@ -33,4 +33,5 @@ public:
  * pcd with the size of 2.0*2.0
  */
 int creatGrid(const char* pcdPath,const char* yamlName,float grid_size_x, float grid_size_y);
+float  computeGmmKl(Matrix<float,4,2> a,Matrix<float,4,2> b);
 //int creatSingleGrid(const char *pcdPath, const char *yamlName, float grid_size_x, float grid_size_y);

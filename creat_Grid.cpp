@@ -139,7 +139,7 @@ int creatGrid(const char *pcdPath, const char *yamlName, float grid_size_x, floa
                 //自动选择模型核数，根据均值之差或者权重大小来判断
                 if( (abs(grid[a][b].GuassianMod.gm->u(0)-grid[a][b].GuassianMod.gm->u(1))<=0.5))
                 {
-                    cout<<a<<" "<<b<<"chazhi : "<<abs(grid[a][b].GuassianMod.gm->u(0)-grid[a][b].GuassianMod.gm->u(1))<<endl;
+//                    cout<<a<<" "<<b<<"chazhi : "<<abs(grid[a][b].GuassianMod.gm->u(0)-grid[a][b].GuassianMod.gm->u(1))<<endl;
                     grid[a][b].GuassianMod.singleGUssianMod();
                 }
                 if (!grid[a][b].GuassianMod.gm->u(1))
@@ -151,6 +151,7 @@ int creatGrid(const char *pcdPath, const char *yamlName, float grid_size_x, floa
                         grid[a][b].GuassianMod.singleGUssianMod();
                     }
                 }
+                //写入yaml文件中
                 fs << "gmmModeU" << "[:";
                 for (int i = 0; i < 2; i++) {
                     if (isnan(grid[a][b].GuassianMod.gm->u(i)))
@@ -184,9 +185,106 @@ int creatGrid(const char *pcdPath, const char *yamlName, float grid_size_x, floa
     fs << "]";
     fs.release();
     cout << "the yaml has writen success!" << endl;
+
+
+    FileStorage fsr("/home/lai/gmm_Grid/pcd2gmmgridmap/build/cloudmapgmm.yaml",FileStorage::READ);
+    if (!fsr.isOpened())
+    {
+        return EXIT_FAILURE;
+    }
+    cout << "the yaml has read success!" << endl;
+    int size=fsr["gmm"].size();
+    FileNode fileNode=fsr["gmm"];
+    FileNodeIterator it=fileNode.begin(),it_end=fileNode.end();
+    vector<int> column1,row1;
+    vector<Matrix<float,4,2> > mod;
+    for(;it!=it_end;it++)
+    {
+//        cout<<"column"<<(int)(*it)["column"]<<endl;
+        Matrix<float,4,2> modtmp;
+        modtmp(3,0)= (int)(*it)["column"];
+        modtmp(3,1)= (int)(*it)["row"];
+        vector<float> gmm_utmp,gmm_sigmatmp,gmm_alphatmp;
+        (*it)["gmmModeU"]>>gmm_utmp;
+        (*it)["gmmModeSigma"]>>gmm_sigmatmp;
+        (*it)["gmmModeAlpha"]>>gmm_alphatmp;
+
+        for (int i = 0; i < (int) gmm_utmp.size(); ++i) {
+            modtmp(0,i)=(float )gmm_utmp[i];
+            modtmp(1,i)=(float )gmm_sigmatmp[i];
+            modtmp(2,i)=(float )gmm_alphatmp[i];
+        }
+        mod.push_back(modtmp);
+    }
+    fsr.release();
+    cout<<mod.size()<<endl;
+    for (int i = 0; i < mod.size(); ++i) {
+        if(abs(computeGmmKl(mod[3],mod[i]))==0)
+        {
+            cout << "the "<< mod[i](3,0) <<" column "<<mod[i](3,1)<<"row is same as the mod "<<endl;
+        }
+
+    }
     for (int i = 0; i < column; ++i) {
         delete[] grid[i];
     }
     delete[] grid;
     return 0;
+}
+
+float  computeGmmKl(Matrix<float,4,2> a,Matrix<float,4,2> b)
+{
+
+
+    float logpa=0,logpb=0;
+    if (!a(1,1))
+    {
+        if (b(1,1))
+        {
+            return 244;
+        }else
+        {
+            for (int i = 1; i < 150; ++i) {
+                float pa,pb,z;
+                z = ((float)i)/30.0;
+                pa = gmm::singlegussian(a(0,0),a(1,0),z);
+                pb = gmm::singlegussian(b(0,0),b(1,0),z);
+                if (pa==0)
+                    pa=1;
+                if (pb==0)
+                    pb=1;
+                pa= log(pa);
+                pb = log(pb);
+                logpa+=pa;
+                logpb+=pb;
+            }
+
+            logpa=logpa/150.0;
+            logpb=logpb/150.0;
+            return  logpa-logpb;
+        }
+    }else
+    {
+        if (!b(1,1))
+        {
+            return 233;
+        }
+        for (int i = 1; i < 150; ++i) {
+            float pa,pb,z;
+            z = ((float)i)/30.0;
+            pa = a(2,0)*gmm::singlegussian(a(0,0),a(1,0),z)
+                 +a(2,1)*gmm::singlegussian(a(0,1),a(1,1),z);
+            pb = b(2,0)*gmm::singlegussian(b(0,0),b(1,0),z)
+                 +b(2,1)*gmm::singlegussian(b(0,1),b(1,1),z);
+            pa= log(pa);
+            pb = log(pb);
+            logpa+=pa;
+            logpb+=pb;
+        }
+
+        logpa=logpa/150.0;
+        logpb=logpb/150.0;
+        return  logpa-logpb;
+    }
+
 }

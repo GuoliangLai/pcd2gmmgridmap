@@ -7,7 +7,7 @@
 #include "point_cloud.h"
 #include <cmath>
 #include <Eigen/Dense>
-double gmm::singlegussian(double u, double sigma,double z)
+float gmm::singlegussian(double u, double sigma,double z)
 {
     double fai,tmp;
     tmp = exp(-pow((z - u),2)/(2*pow(sigma,2)));
@@ -21,6 +21,7 @@ void gmm::singleGUssianMod()
     for (int i = 0; i < p.size(); ++i) {
         sum+=p[i].get_point()(2);
     }
+    //计算均值
     sum/=p.size();
     gm->u(0)=sum;
     gm->u(1)=0.0;
@@ -29,6 +30,7 @@ void gmm::singleGUssianMod()
     for (int i = 0; i < p.size(); ++i) {
         sigmaSum+= (p[i].get_point()(2)-sum)*(p[i].get_point()(2)-sum);
     }
+    //计算方差，无偏估计
     sigma=sigmaSum/(p.size()-1);
     gm->sigma(0)=sigma;
     gm->sigma(1)=0.0;
@@ -149,6 +151,7 @@ void gmm::em_step(double u_old, double sigma_old,int N)
 
 
 }
+
 void gmm::input_point(std::vector<piont_cloud> m_p)
 {
     p = m_p;

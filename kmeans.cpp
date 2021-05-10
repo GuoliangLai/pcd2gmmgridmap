@@ -1,7 +1,8 @@
 #include<iostream>
 #include<vector>
-#include<time.h>
+#include<ctime>
 #include "cmath"
+#include "stdlib.h"
 using namespace std;
 #define random(x) (rand()%x)
 #define oo 9999999
