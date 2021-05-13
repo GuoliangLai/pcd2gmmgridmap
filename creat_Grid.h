@@ -18,7 +18,7 @@
 #include "point_cloud.h"
 #include "gmm.h"
 #include <pcl/common/common.h>
-#include "opencv2/opencv.hpp"
+#include "opencv2/opencv.hpp"    cout << "the yaml has writen success!" << endl;
 #include "kmeans.h"
 class Grid {
 public:
